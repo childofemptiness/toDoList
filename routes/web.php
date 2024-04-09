@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Counter;
+use App\Livewire\Tasks\Task;
+use App\Livewire\Tasks\TaskForm;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,14 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::view('/', 'welcome');
+Route::redirect('/', '/tasks');
 
 Route::view('dashboard', 'dashboard')
+
     ->middleware(['auth', 'verified'])
+
     ->name('dashboard');
 
+
 Route::view('profile', 'profile')
+
     ->middleware(['auth'])
+
     ->name('profile');
+
+
+Route::get('/tasks', Task::class)
+
+    ->middleware(['auth'])
+
+    ->name('tasks');
+Route::get('/tasks/task-form', TaskForm::class);
 
 require __DIR__.'/auth.php';
