@@ -20,10 +20,11 @@ return new class extends Migration
 
             $table->unsignedBigInteger('task_id');
 
-            $table->foreign('task_id')->references('id')->on('tasks');
-            
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->string('status', 30);
+            
+            $table->enum('status', ['В процессе', 'Выполнена', 'Отменена']);
+            
         });
     }
 

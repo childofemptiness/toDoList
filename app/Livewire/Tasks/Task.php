@@ -4,26 +4,30 @@ namespace App\Livewire\Tasks;
 
 use App\Models\Task as ModelsTask;
 use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Task extends Component
 {
-    public $tasks, $task, $name, $description, $status, $taskId;
+    public $tasks, $task;
+
+    public $showStatus = false;
 
     public $updateMode = false;
 
+    #[On(['task-created', 'task-updated'])]
     public function render() {
-        
-        $tasks = ModelsTask::all() ?? collect();
 
+        $tasks = ModelsTask::with('status')->get();
+        
         $this->tasks = $tasks;
 
-        return view('livewire.tasks', compact('tasks'));
+        return view('livewire.tasks');
     }
     
    public function edit($id) {
 
-        $this->task = ModelsTask::findOrFail($id);
+        $this->task = ModelsTask::with('status')->findOrFail($id);
 
         $this->dispatch('task-edited', 
         
@@ -36,7 +40,15 @@ class Task extends Component
     public function delete($id) {
 
         ModelsTask::find($id)->delete();
+    }
+    
+    public function showStatusHistory() {
 
-        session()->flash('message', 'Task Updated Successfully');
+        $this->showStatus = true;
+
+        Log::info($this->showStatus);
+
+        $this->dispatch('show-status-history');
+
     }
 }

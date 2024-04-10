@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tasks;
 
+use App\Models\Status;
 use App\Models\Task;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -9,7 +10,7 @@ use Livewire\Attributes\On;
 
 class TaskForm extends Component
 {
-    public $task, $name, $description, $status, $taskId;
+    public $task, $name, $description, $selectedStatus, $statusOptions, $taskId;
 
     public $updateMode = false;
     
@@ -20,9 +21,20 @@ class TaskForm extends Component
         $this->showModal = false;
     }
 
+    private function resetInputFields() {
+
+        $this->name = '';
+
+        $this->description = '';
+
+        $this->selectedStatus = '';
+    }
+
     public function render() {
 
-        return view('livewire.tasks.task-form');
+        $this->statusOptions = Status::getStatusOptions();
+
+        return view('livewire.tasks.task-form', ['statusOptions' => $this->statusOptions]);
     }
 
     public function submit() {
@@ -38,16 +50,17 @@ class TaskForm extends Component
     #[On('task-edited')]
     public function isUpdate($updateMode, $task) {
 
-        Log::info($task);
         $this->updateMode = $updateMode;
 
         $this->task = $task;
+
+        $this->taskId = $task['id'];
 
         $this->name = $task['name'];
 
         $this->description = $task['description'];
 
-        $this->status = $task['status'];
+        $this->selectedStatus = $task['status']['status'];
 
         $this->toggleModal();
     }
@@ -64,23 +77,25 @@ class TaskForm extends Component
         $this->showModal = !$this->showModal;
     }
 
-    private function resetInputFields() {
-
-        $this->name = '';
-
-        $this->description = '';
-    }
-
     public function store() {
 
-        Task::create([
+        $task = Task::create([
 
             'name' => $this->name,
 
             'description' => $this->description,
         ]);
+    
+        Status::create([
+            
+            'task_id' => $task->id,
 
-        $this->resetInputFields();
+            'status' => $this->selectedStatus,
+        ]);
+
+        $this->dispatch('task-created');
+
+        $this->toggleModal();
     }
 
     public function update() {
@@ -90,23 +105,28 @@ class TaskForm extends Component
             'name' => 'required',
 
             'description' => 'required',
+
+            'selectedStatus' => 'required',
         ]);
 
         $task = Task::find($this->taskId);
 
-        $task->update([
+        $task->create([
 
             'name' => $this->name,
 
             'description' => $this->description,
         ]);
-        
-        $this->resetInputFields();
+
+        $status = Status::where('task_id', $this->taskId)->first();
+
+        $status->update([
+
+            'status' => $this->selectedStatus,
+        ]);
+
+        $this->dispatch('task-updated');
 
         $this->toggleModal();
-
-        $this->updateMode = false;
-
-        $this->resetInputFields();
     }
 }

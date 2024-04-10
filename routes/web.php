@@ -3,6 +3,7 @@
 use App\Livewire\Counter;
 use App\Livewire\Tasks\Task;
 use App\Livewire\Tasks\TaskForm;
+use App\Models\Status;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +38,9 @@ Route::get('/tasks', Task::class)
     ->middleware(['auth'])
 
     ->name('tasks');
+    
 Route::get('/tasks/task-form', TaskForm::class);
+
+// Route::get('/status', Status::class);
 
 require __DIR__.'/auth.php';

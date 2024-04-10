@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Status extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+
+        'status',
+        
+        'task_id',
+    ];
+
+    public static function getStatusOptions() {
+
+        return ['В процессе', 'Отменена', 'Выполнена'];
+    }
 }
