@@ -3,26 +3,27 @@
 namespace App\Livewire\Tasks;
 
 use App\Models\Task as ModelsTask;
-use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithoutUrlPagination;
+use Livewire\WithPagination;
 
 class Task extends Component
 {
-    public $tasks, $task;
+    use WithPagination, WithoutUrlPagination;
+
+    public $task, $taskId;
 
     public $showStatus = false;
 
     public $updateMode = false;
 
-    #[On(['task-created', 'task-updated'])]
+    #[On(['task-created', 'task-updated', 'status-updated'])]
     public function render() {
 
-        $tasks = ModelsTask::with('status')->get();
-        
-        $this->tasks = $tasks;
-
-        return view('livewire.tasks');
+        $tasks = ModelsTask::with('status')->paginate(5);
+ 
+        return view('livewire.tasks', compact('tasks'));
     }
     
    public function edit($id) {
@@ -36,19 +37,22 @@ class Task extends Component
             task : $this->task,
         );
    }
+    public function editStatus($taskId) {
+
+        $this->dispatch('edit-status', taskId : $taskId);
+    }
 
     public function delete($id) {
 
         ModelsTask::find($id)->delete();
     }
     
-    public function showStatusHistory() {
+    public function showStatusHistory($taskId) {
 
         $this->showStatus = true;
 
-        Log::info($this->showStatus);
+        $this->taskId = $taskId;
 
-        $this->dispatch('show-status-history');
-
+        $this->dispatch('show-status-history', taskId : $taskId);
     }
 }

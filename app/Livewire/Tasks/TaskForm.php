@@ -4,13 +4,12 @@ namespace App\Livewire\Tasks;
 
 use App\Models\Status;
 use App\Models\Task;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
 class TaskForm extends Component
 {
-    public $task, $name, $description, $selectedStatus, $statusOptions, $taskId;
+    public $task, $name, $description, $statusOptions, $taskId;
 
     public $updateMode = false;
     
@@ -27,7 +26,6 @@ class TaskForm extends Component
 
         $this->description = '';
 
-        $this->selectedStatus = '';
     }
 
     public function render() {
@@ -60,8 +58,6 @@ class TaskForm extends Component
 
         $this->description = $task['description'];
 
-        $this->selectedStatus = $task['status']['status'];
-
         $this->toggleModal();
     }
 
@@ -85,14 +81,14 @@ class TaskForm extends Component
 
             'description' => $this->description,
         ]);
-    
+
         Status::create([
-            
+
             'task_id' => $task->id,
 
-            'status' => $this->selectedStatus,
+            'status' => 'В процессе',
         ]);
-
+    
         $this->dispatch('task-created');
 
         $this->toggleModal();
@@ -105,24 +101,15 @@ class TaskForm extends Component
             'name' => 'required',
 
             'description' => 'required',
-
-            'selectedStatus' => 'required',
         ]);
 
         $task = Task::find($this->taskId);
 
-        $task->create([
+        $task->update([
 
             'name' => $this->name,
 
             'description' => $this->description,
-        ]);
-
-        $status = Status::where('task_id', $this->taskId)->first();
-
-        $status->update([
-
-            'status' => $this->selectedStatus,
         ]);
 
         $this->dispatch('task-updated');
