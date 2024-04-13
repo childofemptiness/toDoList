@@ -16,6 +16,8 @@ class Status extends Model
         'task_id',
     ];
 
+    public $timestamps = true;
+
     public static function getStatusOptions() {
 
         return ['В процессе', 'Отменена', 'Выполнена'];

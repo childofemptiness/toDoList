@@ -9,6 +9,8 @@ services:
     container_name: app
     restart: unless-stopped
     tty: true
+    command: >
+      bash -c "php artisan migrate --seed --env=testing"
     environment:
       DB_HOST: 'mysql'
       DB_DATABASE: '${DB_DATABASE}'
@@ -36,7 +38,7 @@ services:
     image: mysql:8.2
     container_name: db
     volumes:
-      - './mysql:/var/lib/mysql'
+      - './mysql/main:/var/lib/mysql'
     restart: unless-stopped
     environment:
       SERVICE_TAGS: dev
@@ -46,6 +48,36 @@ services:
      - "3306:3306"
     networks:
       - app-network
+  # Сервис тестовой базды данных
+  test_db:
+    env_file: .env.testing
+    image: mysql:8.2
+    container_name: test_db
+    volumes:
+      - './mysql/test:/var/lib/mysql'
+    restart: unless-stopped
+    environment:
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+
+  # # Служба для инициализации тестовой базы данных
+  # test_db_init:
+  #   build:
+  #     context: .
+  #     dockerfile: DockerFile
+  #   container_name: test_db_init
+  #   depends_on:
+  #     - test_db
+  #   tty: true
+  #   command: >
+  #     bash -c "php artisan migrate --seed --env=testing"
+  #   networks:
+  #     - app-network
 
 #Docker Networks
 networks:

@@ -72,7 +72,7 @@ class TaskForm extends Component
 
         $this->showModal = !$this->showModal;
     }
-
+    // Статус задаем по умолчанию "В процессе"
     public function store() {
 
         $task = Task::create([

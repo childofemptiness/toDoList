@@ -18,6 +18,24 @@
     
             <div class="w-full px-4 py-2">
 
+                <div class="mt-4">
+
+                    <x-input-label for="filter" :value="__('Фильтр')" class="mb-2"/>
+        
+                    <select wire:model.lazy="filter" wire:change="search" class="h-4" name="filter">
+
+                        <option value="">По умолчанию</option>
+
+                        @foreach ($statusOptions as $status)
+        
+                            <option class="text-grey-dark" value="{{ $status }}">{{$status }}</option>
+        
+                        @endforeach
+        
+                    </select>
+                    
+                </div>
+
                 <table class="min-w-full leading-normal mt-5 shadow-md rounded-lg overflow-hidden border-collapse text-center">
 
                     <thead>
